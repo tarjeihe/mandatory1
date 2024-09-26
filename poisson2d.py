@@ -32,31 +32,56 @@ class Poisson2D:
 
     def create_mesh(self, N):
         """Create 2D mesh and store in self.xij and self.yij"""
-        self.xij, self.yij = np.meshgrid(linspace(0, L, N + 1), linspace(0, L, N + 1), indexing='ij')
+        self.xij, self.yij = np.meshgrid(np.linspace(0, self.L, N + 1), np.linspace(0, self.L, N + 1), indexing='ij')
+        self.N = N
+        self.h = self.L/self.N
         #raise NotImplementedError
 
     def D2(self):
         """Return second order differentiation matrix"""
-        D = sparse.diags([1, -2, 1], [-1, 0, 1])
+        D = sparse.diags([1, -2, 1], [-1, 0, 1], (self.N + 1, self.N + 1))
         return D
         #raise NotImplementedError
 
     def laplace(self):
         """Return vectorized Laplace operator"""
-        raise NotImplementedError
+        Dx = sparse.kron(1.0/(self.h*self.h)*self.D2(), sparse.eye(self.N + 1))
+        Dy = sparse.kron(sparse.eye(self.N + 1), 1.0/(self.h*self.h)*self.D2())
+        return Dx + Dy
+        #raise NotImplementedError
 
     def get_boundary_indices(self):
         """Return indices of vectorized matrix that belongs to the boundary"""
-        raise NotImplementedError
+        B = np.ones((self.N + 1, self.N + 1), dtype=bool)
+        B[1:-1, 1:-1] = 0
+        bnds = np.where(B.ravel() == 1)[0]
+        return bnds
+        #raise NotImplementedError
 
     def assemble(self):
         """Return assembled matrix A and right hand side vector b"""
-        # return A, b
-        raise NotImplementedError
+        A = self.laplace()
+        bnds = self.get_boundary_indices()
+        A = A.tolil()
+        for i in bnds:
+            A[i] = 0
+            A[i, i] = 1
+        A = A.tocsr()
+        F = sp.lambdify((x, y), self.f)(self.xij, self.yij)
+        b = F.ravel()
+        u_exact = sp.lambdify((x, y), self.ue)(self.xij, self.yij)
+        u_raveled = u_exact.ravel()
+        for i in bnds:
+            b[i] = u_raveled[i]
+        return A, b
+        #raise NotImplementedError
 
     def l2_error(self, u):
         """Return l2-error norm"""
-        raise NotImplementedError
+        u_exact = sp.lambdify((x, y), self.ue)(self.xij, self.yij)
+        en = np.sqrt(h*h*np.sum((u_exact.ravel() - u)**2))
+        return en
+        #raise NotImplementedError
 
     def __call__(self, N):
         """Solve Poisson's equation.
