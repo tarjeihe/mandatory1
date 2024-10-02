@@ -140,7 +140,18 @@ class Poisson2D:
         The value of u(x, y)
 
         """
-        raise NotImplementedError
+        indXm1 = np.floor(x/self.h)
+        indXp1 = np.ceil(x/self.h)
+        indYm1 = np.floor(y/self.h)
+        indYp1 = np.ceil(y/self.h)
+
+        uMat = np.ndarray((self.N + 1, self.N + 1))
+        for i in range(self.N + 1):
+            for j in range(self.N + 1):
+                uMat[i, j] = self.U[(self.N+1)*j + i]
+        
+        scipy.interpolate.inpterpn(points=(self.xij, self.yij), values=uMat, xi=(x, y))
+        #raise NotImplementedError
 
 def test_convergence_poisson2d():
     # This exact solution is NOT zero on the entire boundary
