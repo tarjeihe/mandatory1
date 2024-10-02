@@ -10,9 +10,9 @@ class Wave2D:
 
     def create_mesh(self, N, sparse=False):
         """Create 2D mesh and store in self.xij and self.yij"""
-        self.xij, self.yij = np.meshgrid(np.linspace(0, self.L, N + 1), np.linspace(0, self.L, N + 1), indexing='ij')
+        self.xij, self.yij = np.meshgrid(np.linspace(0, 1.0, N + 1), np.linspace(0, 1.0, N + 1), indexing='ij')
         self.N = N
-        self.h = self.L/self.N
+        self.h = 1.0/self.N
         #raise NotImplementedError
 
     def D2(self, N):
@@ -24,6 +24,7 @@ class Wave2D:
     @property
     def w(self):
         """Return the dispersion coefficient"""
+        return 1.0*sp.pi*np.sqrt(self.mx**2 + self.my**2)
         raise NotImplementedError
 
     def ue(self, mx, my):
@@ -41,6 +42,8 @@ class Wave2D:
             Parameters for the standing wave
         """
         self.u = sp.lambdify((x, y), self.ue(mx, my))(self.xij, self.yij)
+        self.mx = mx
+        self.my = my
         #raise NotImplementedError
 
     @property
