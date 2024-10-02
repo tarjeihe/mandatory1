@@ -25,7 +25,7 @@ class Wave2D:
     def w(self):
         """Return the dispersion coefficient"""
         return 1.0*sp.pi*np.sqrt(self.mx**2 + self.my**2)
-        raise NotImplementedError
+        #raise NotImplementedError
 
     def ue(self, mx, my):
         """Return the exact standing wave"""
