@@ -98,11 +98,12 @@ class Wave2D:
         If store_data > 0, then return a dictionary with key, value = timestep, solution
         If store_data == -1, then return the two-tuple (h, l2-error)
         """
+        self.create_mesh(N)
         self.dt = cfl*self.h/c
         self.Unp1, self.Un, self.Unm1 = np.zeros((3, N+1, N+1))
-        self.Unm1[:] = self.u(xij, yij)
+        self.Unm1[:] = self.u(self.xij, self.yij)
         D = self.D2()/(self.h*self.h)
-        self.Un[:] = self.Unm1[:] + 0.5*(c*dt)**2*(D @ self.Unm1 + self.Unm1 @ D.T)
+        self.Un[:] = self.Unm1[:] + 0.5*(c*self.dt)**2*(D @ self.Unm1 + self.Unm1 @ D.T)
         t = 0
         plotdata = {0: self.Unm1.copy()}
         if store_data == 1:
