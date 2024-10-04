@@ -115,9 +115,9 @@ class Wave2D:
             self.Un[:] = self.Unp1
             if n % store_data == 0:
                 plotdata[n] = self.Unm1.copy()
-        if store_data == -1
+        if store_data == -1:
             return (self.h, self.l2_error(u, t))
-        else
+        else:
             return plotdata
         #raise NotImplementedError
 
