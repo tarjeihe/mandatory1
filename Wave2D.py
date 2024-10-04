@@ -117,6 +117,8 @@ class Wave2D:
                 plotdata[n] = self.Unm1.copy()
         if store_data == -1
             return (self.h, self.l2_error(u, t))
+        else
+            return plotdata
         #raise NotImplementedError
 
     def convergence_rates(self, m=4, cfl=0.1, Nt=10, mx=3, my=3):
