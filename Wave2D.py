@@ -33,7 +33,7 @@ class Wave2D:
 
     def initialize(self, N, mx, my):
         r"""Initialize the solution at $U^{n}$ and $U^{n-1}$
-
+    
         Parameters
         ----------
         N : int
@@ -42,7 +42,7 @@ class Wave2D:
             Parameters for the standing wave
         """
         self.u = sp.lambdify((x, y), self.ue(mx, my))(self.xij, self.yij)
-
+        
         self.mx = mx
         self.my = my
         #raise NotImplementedError
@@ -63,7 +63,7 @@ class Wave2D:
         t0 : number
             The time of the comparison
         """
-        return np.sqrt(self.h*self.h*np.sum((sp.lambdify((x, y), self.ue)(self.xij, self.yij) - self.u)**2))
+        return np.sqrt(self.h*self.h*np.sum((sp.lambdify((x, y, t), self.ue)(self.xij, self.yij, t0) - u)**2))
         #raise NotImplementedError
 
     def apply_bcs(self):
@@ -99,9 +99,25 @@ class Wave2D:
         If store_data == -1, then return the two-tuple (h, l2-error)
         """
         self.dt = cfl*self.h/c
+        self.Unp1, self.Un, self.Unm1 = np.zeros((3, N+1, N+1))
+        self.Unm1[:] = self.u(xij, yij)
+        D = self.D2()/(self.h*self.h)
+        self.Un[:] = self.Unm1[:] + 0.5*(c*dt)**2*(D @ self.Unm1 + self.Unm1 @ D.T)
+        t = 0
+        plotdata = {0: self.Unm1.copy()}
+        if store_data == 1:
+            plotdata[1] = self.Un.copy()
         for n in range(1, Nt):
-            Unp1[:] = 2*Un - Unm1 + (c*dt)**2*(self.D2() @ Un + Un @ self.D2().T)
-        raise NotImplementedError
+            t += self.dt
+            self.Unp1[:] = 2*self.Un - self.Unm1 + (c*self.dt)**2*(D @ Un + Un @ D.T)
+            self.apply_bcs()
+            self.Unm1[:] = self.Un
+            self.Un[:] = self.Unp1
+            if n % store_data == 0:
+                plotdata[n] = self.Unm1.copy()
+        if store_data == -1
+            return (self.h, self.l2_error(u, t))
+        #raise NotImplementedError
 
     def convergence_rates(self, m=4, cfl=0.1, Nt=10, mx=3, my=3):
         """Compute convergence rates for a range of discretizations
