@@ -197,7 +197,7 @@ def test_interpolation():
     assert abs(sol.eval(sol.h/2, 1-sol.h/2) - ue.subs({x: sol.h/2, y: 1-sol.h/2}).n()) < 1e-3
 
 if __name__ == '__main__':
-    #test_convergence_poisson2d()
+    test_convergence_poisson2d()
     test_interpolation()
     
 
