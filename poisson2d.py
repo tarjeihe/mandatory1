@@ -127,7 +127,38 @@ class Poisson2D:
         r = [np.log(E[i-1]/E[i])/np.log(h[i-1]/h[i]) for i in range(1, m+1, 1)]
         return r, np.array(E), np.array(h)
 
-    def eval(self, x, y):
+    def Lagrangebasis(xj, x=x):
+        """Construct Lagrange basis for points in xj
+    
+        Parameters
+        ----------
+        xj : array
+            Interpolation points (nodes)
+        x : Sympy Symbol
+    
+        Returns
+        -------
+        Lagrange basis as a list of Sympy functions
+        """
+        from sympy import Mul
+        n = len(xj)
+        ell = []
+        numert = Mul(*[x - xj[i] for i in range(n)])
+        for i in range(n):
+            numer = numert/(x - xj[i])
+            denom = Mul(*[(xj[i] - xj[j]) for j in range(n) if i != j])
+            ell.append(numer/denom)
+        return ell
+
+    def Lagrangefunction2D(u, basisx, basisy):
+        N, M = u.shape
+        f = 0
+        for i in range(N):
+            for j in range(M):
+                f += basisx[i]*basisy[j]*u[i, j]
+        return f
+
+    def eval(self, xVal, yVal):
         """Return u(x, y)
 
         Parameters
@@ -140,17 +171,15 @@ class Poisson2D:
         The value of u(x, y)
 
         """
-        indXm1 = np.floor(x/self.h)
-        indXp1 = np.ceil(x/self.h)
-        indYm1 = np.floor(y/self.h)
-        indYp1 = np.ceil(y/self.h)
+        indXm1 = int(np.floor(x/self.h))
+        indXp1 = int(np.ceil(x/self.h))
+        indYm1 = int(np.floor(y/self.h))
+        indYp1 = int(np.ceil(y/self.h))
 
-        uMat = np.ndarray((self.N + 1, self.N + 1))
-        for i in range(self.N + 1):
-            for j in range(self.N + 1):
-                uMat[i, j] = self.U[(self.N+1)*j + i]
-        
-        scipy.interpolate.inpterpn(points=(self.xij, self.yij), values=uMat, xi=(x, y))
+        lx = Lagrangebasis(self.xij[indXm1:indXp1, 0], x=x)
+        ly = Lagrangebasis(self.yij[0, indYm1:indYp1], x=y)
+        f = Lagrangefunction2D(self.U[indXm1:indXp1, indYm1:indYp1], lx, ly)
+        f.subs({x: xVal, y: yVal})
         #raise NotImplementedError
 
 def test_convergence_poisson2d():
@@ -169,6 +198,7 @@ def test_interpolation():
 
 if __name__ == '__main__':
     test_convergence_poisson2d()
+    test_interpolation()
     
 
 
