@@ -24,7 +24,7 @@ class Wave2D:
     @property
     def w(self):
         """Return the dispersion coefficient"""
-        return 1.0*sp.pi*np.sqrt(self.mx**2 + self.my**2)
+        return sp.pi*np.sqrt(self.mx**2 + self.my**2)
         #raise NotImplementedError
 
     def ue(self, mx, my):
@@ -42,6 +42,7 @@ class Wave2D:
             Parameters for the standing wave
         """
         self.u = sp.lambdify((x, y), self.ue(mx, my))(self.xij, self.yij)
+
         self.mx = mx
         self.my = my
         #raise NotImplementedError
@@ -49,7 +50,8 @@ class Wave2D:
     @property
     def dt(self):
         """Return the time step"""
-        raise NotImplementedError
+        return self.dt
+        #raise NotImplementedError
 
     def l2_error(self, u, t0):
         """Return l2-error norm
@@ -61,10 +63,15 @@ class Wave2D:
         t0 : number
             The time of the comparison
         """
-        raise NotImplementedError
+        return np.sqrt(self.h*self.h*np.sum((sp.lambdify((x, y), self.ue)(self.xij, self.yij) - self.u)**2))
+        #raise NotImplementedError
 
     def apply_bcs(self):
-        raise NotImplementedError
+        self.Unp1[0] = 0
+        self.Unp1[-1] = 0
+        self.Unp1[:, -1] = 0
+        self.Unp1[:, 0] = 0
+        #raise NotImplementedError
 
     def __call__(self, N, Nt, cfl=0.5, c=1.0, mx=3, my=3, store_data=-1):
         """Solve the wave equation
@@ -91,6 +98,9 @@ class Wave2D:
         If store_data > 0, then return a dictionary with key, value = timestep, solution
         If store_data == -1, then return the two-tuple (h, l2-error)
         """
+        self.dt = cfl*self.h/c
+        for n in range(1, Nt):
+            Unp1[:] = 2*Un - Unm1 + (c*dt)**2*(self.D2() @ Un + Un @ self.D2().T)
         raise NotImplementedError
 
     def convergence_rates(self, m=4, cfl=0.1, Nt=10, mx=3, my=3):
@@ -149,3 +159,7 @@ def test_convergence_wave2d_neumann():
 
 def test_exact_wave2d():
     raise NotImplementedError
+
+if __name__ == '__main__':
+    test_convergence_wave2d()
+    #test_interpolation()
