@@ -41,16 +41,15 @@ class Wave2D:
         mx, my : int
             Parameters for the standing wave
         """
-        self.u = sp.lambdify((x, y), self.ue(mx, my))(self.xij, self.yij)
-        
         self.mx = mx
         self.my = my
+        self.u = sp.lambdify((x, y, t), self.ue(mx, my))(self.xij, self.yij, 0)
         #raise NotImplementedError
 
     @property
     def dt(self):
         """Return the time step"""
-        return self.dt
+        return self.cfl*self.h/self.c
         #raise NotImplementedError
 
     def l2_error(self, u, t0):
@@ -63,7 +62,7 @@ class Wave2D:
         t0 : number
             The time of the comparison
         """
-        return np.sqrt(self.h*self.h*np.sum((sp.lambdify((x, y, t), self.ue)(self.xij, self.yij, t0) - u)**2))
+        return np.sqrt(self.h*self.h*np.sum((sp.lambdify((x, y, t), self.ue(mx, my)(self.xij, self.yij, t0) - u)**2))
         #raise NotImplementedError
 
     def apply_bcs(self):
@@ -99,9 +98,11 @@ class Wave2D:
         If store_data == -1, then return the two-tuple (h, l2-error)
         """
         self.create_mesh(N)
-        self.dt = cfl*self.h/c
+        self.cfl = cfl
+        self.c = c
+        self.initialize(N, mx, my)
         self.Unp1, self.Un, self.Unm1 = np.zeros((3, N+1, N+1))
-        self.Unm1[:] = self.u(self.xij, self.yij)
+        self.Unm1[:] = self.u
         D = self.D2()/(self.h*self.h)
         self.Un[:] = self.Unm1[:] + 0.5*(c*self.dt)**2*(D @ self.Unm1 + self.Unm1 @ D.T)
         t = 0
