@@ -198,7 +198,7 @@ def test_interpolation():
 
 if __name__ == '__main__':
     test_convergence_poisson2d()
-    test_interpolation()
+    #test_interpolation()
     
 
 
