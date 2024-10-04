@@ -79,7 +79,7 @@ class Poisson2D:
     def l2_error(self, u):
         """Return l2-error norm"""
         u_exact = sp.lambdify((x, y), self.ue)(self.xij, self.yij)
-        en = np.sqrt(self.h*self.h*np.sum((u_exact.ravel() - u)**2))
+        en = np.sqrt(self.h*self.h*np.sum((u_exact - u)**2))
         return en
         #raise NotImplementedError
 
