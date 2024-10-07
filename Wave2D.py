@@ -62,7 +62,7 @@ class Wave2D:
         t0 : number
             The time of the comparison
         """
-        return np.sqrt(self.h*self.h*np.sum((sp.lambdify((x, y, t), self.ue(self.mx, self.my)(self.xij, self.yij, t0) - u)**2))
+        return np.sqrt(self.h*self.h*np.sum((sp.lambdify((x, y, t), self.ue(self.mx, self.my))(self.xij, self.yij, t0) - u)**2))
         #raise NotImplementedError
 
     def apply_bcs(self):
@@ -103,7 +103,7 @@ class Wave2D:
         self.initialize(N, mx, my)
         self.Unp1, self.Un, self.Unm1 = np.zeros((3, N+1, N+1))
         self.Unm1[:] = self.u
-        D = self.D2()/(self.h*self.h)
+        D = self.D2(N)/(self.h*self.h)
         self.Un[:] = self.Unm1[:] + 0.5*(c*self.dt)**2*(D @ self.Unm1 + self.Unm1 @ D.T)
         time = self.dt
         plotdata = {0: self.Unm1.copy()}
@@ -113,7 +113,7 @@ class Wave2D:
             errordata[1] = self.l2_error(self.Un, time)
         for n in range(1, Nt):
             time += self.dt
-            self.Unp1[:] = 2*self.Un - self.Unm1 + (c*self.dt)**2*(D @ Un + Un @ D.T)
+            self.Unp1[:] = 2*self.Un - self.Unm1 + (c*self.dt)**2*(D @ self.Un + self.Un @ D.T)
             self.apply_bcs()
             self.Unm1[:] = self.Un
             self.Un[:] = self.Unp1
@@ -216,7 +216,7 @@ class Wave2D_Neumann(Wave2D):
         t0 : number
             The time of the comparison
         """
-        return np.sqrt(self.h*self.h*np.sum((sp.lambdify((x, y, t), self.ue(self.mx, self.my)(self.xij, self.yij, t0) - u)**2))
+        return np.sqrt(self.h*self.h*np.sum((sp.lambdify((x, y, t), self.ue(self.mx, self.my))(self.xij, self.yij, t0) - u)**2))
         #raise NotImplementedError
 
     #def apply_bcs(self):
@@ -253,7 +253,7 @@ class Wave2D_Neumann(Wave2D):
         self.initialize(N, mx, my)
         self.Unp1, self.Un, self.Unm1 = np.zeros((3, N+1, N+1))
         self.Unm1[:] = self.u
-        D = self.D2()/(self.h*self.h)
+        D = self.D2(N)/(self.h*self.h)
         self.Un[:] = self.Unm1[:] + 0.5*(c*self.dt)**2*(D @ self.Unm1 + self.Unm1 @ D.T)
         time = self.dt
         plotdata = {0: self.Unm1.copy()}
@@ -263,7 +263,7 @@ class Wave2D_Neumann(Wave2D):
             errordata[1] = self.l2_error(self.Un, time)
         for n in range(1, Nt):
             time += self.dt
-            self.Unp1[:] = 2*self.Un - self.Unm1 + (c*self.dt)**2*(D @ Un + Un @ D.T)
+            self.Unp1[:] = 2*self.Un - self.Unm1 + (c*self.dt)**2*(D @ self.Un + self.Un @ D.T)
             #self.apply_bcs()
             self.Unm1[:] = self.Un
             self.Un[:] = self.Unp1
