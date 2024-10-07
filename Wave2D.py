@@ -17,7 +17,7 @@ class Wave2D:
 
     def D2(self, N):
         """Return second order differentiation matrix"""
-        D = sparse.diags([1, -2, 1], [-1, 0, 1], (self.N + 1, self.N + 1), 'lil')
+        D = sparse.diags([1, -2, 1], [-1, 0, 1], (N + 1, N + 1), 'lil')
         return D
         #raise NotImplementedError
 
