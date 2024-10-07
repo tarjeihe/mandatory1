@@ -219,8 +219,8 @@ class Wave2D_Neumann(Wave2D):
         return np.sqrt(self.h*self.h*np.sum((sp.lambdify((x, y, t), self.ue(self.mx, self.my)(self.xij, self.yij, t0) - u)**2))
         #raise NotImplementedError
 
-    def apply_bcs(self):
-        raise NotImplementedError
+    #def apply_bcs(self):
+     #   raise NotImplementedError
 
     def __call__(self, N, Nt, cfl=0.5, c=1.0, mx=3, my=3, store_data=-1):
         """Solve the wave equation
