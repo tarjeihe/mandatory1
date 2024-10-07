@@ -119,7 +119,7 @@ class Wave2D:
             self.Un[:] = self.Unp1
             if n % store_data == 0:
                 plotdata[n] = self.Unm1.copy()
-                errordata[n] = self.l2_error(self.Un, time)
+                errordata.append(self.l2_error(self.Un, time))
         if store_data == -1:
             return (self.h, errordata)
         else:
@@ -269,7 +269,7 @@ class Wave2D_Neumann(Wave2D):
             self.Un[:] = self.Unp1
             if n % store_data == 0:
                 plotdata[n] = self.Unm1.copy()
-                errordata[n] = self.l2_error(self.Un, time)
+                errordata.append(self.l2_error(self.Un, time))
         if store_data == -1:
             return (self.h, errordata)
         else:
@@ -323,5 +323,6 @@ def test_exact_wave2d():
     raise NotImplementedError
 
 if __name__ == '__main__':
+    test_convergence_wave2d()
     test_convergence_wave2d_neumann()
     #test_interpolation()
