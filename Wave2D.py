@@ -24,7 +24,7 @@ class Wave2D:
     @property
     def w(self):
         """Return the dispersion coefficient"""
-        return sp.pi*np.sqrt(self.mx**2 + self.my**2)
+        return np.pi*np.sqrt(self.mx**2 + self.my**2)
         #raise NotImplementedError
 
     def ue(self, mx, my):
@@ -186,7 +186,7 @@ class Wave2D_Neumann(Wave2D):
     @property
     def w(self):
         """Return the dispersion coefficient"""
-        return sp.pi*np.sqrt(self.mx**2 + self.my**2)
+        return np.pi*np.sqrt(self.mx**2 + self.my**2)
         #raise NotImplementedError
     
     def D2(self, N):
