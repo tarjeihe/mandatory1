@@ -158,7 +158,7 @@ class Poisson2D:
                 f += basisx[i]*basisy[j]*u[i, j]
         return f
 
-    def linearInterpolation(u0, ux, uy, x0, x1, y0, y1, xVal, yVal):
+    def linearInterpolation(self, u0, ux, uy, x0, x1, y0, y1, xVal, yVal):
         return u0 + (xVal - x0) * (ux - u0) / (x1 - x0) + (yVal - y0) * (uy - u0) / (y1 - y0)
 
     def eval(self, xVal, yVal):
