@@ -158,6 +158,9 @@ class Poisson2D:
                 f += basisx[i]*basisy[j]*u[i, j]
         return f
 
+    def linearInterpolation(u0, ux, uy, x0, x1, y0, y1, xVal, yVal):
+        return u0 + (xVal - x0) * (ux - u0) / (x1 - x0) + (yVal - y0) * (uy - u0) / (y1 - y0)
+
     def eval(self, xVal, yVal):
         """Return u(x, y)
 
@@ -177,10 +180,11 @@ class Poisson2D:
         indYp1 = indYm1 + 2
         xVals = [self.xij[indXm1, 0], self.xij[indXm1 + 1, 0]]
         yVals = [self.yij[0, indYm1], self.xij[0, indYm1 + 1]]
-        lx = Lagrangebasis(xVals, x=x)
-        ly = Lagrangebasis(yVals, x=y)
-        f = Lagrangefunction2D(self.U[indXm1:indXp1, indYm1:indYp1], lx, ly)
-        f.subs({x: xVal, y: yVal})
+        #lx = Lagrangebasis(xVals, x=x)
+        #ly = Lagrangebasis(yVals, x=y)
+        #f = Lagrangefunction2D(self.U[indXm1:indXp1, indYm1:indYp1], lx, ly)
+        #f.subs({x: xVal, y: yVal})
+        return self.linearInterpolation(self.U[indXm1, indYm1], self.U[indXm1+1, indYm1], self.U[indXm1, indYm1 + 1], self.xij[indXm1,indYm1], self.xij[indXm1+1,indYm1], self.yij[indXm1,indYm1], self.yij[indXm1,indYm1+1], xVal, yVal)
         #raise NotImplementedError
 
 def test_convergence_poisson2d():
