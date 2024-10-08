@@ -171,13 +171,14 @@ class Poisson2D:
         The value of u(x, y)
 
         """
-        indXm1 = int(np.floor(x/self.h))
-        indXp1 = int(np.ceil(x/self.h))
-        indYm1 = int(np.floor(y/self.h))
-        indYp1 = int(np.ceil(y/self.h))
-
-        lx = Lagrangebasis(self.xij[indXm1:indXp1, 0], x=x)
-        ly = Lagrangebasis(self.yij[0, indYm1:indYp1], x=y)
+        indXm1 = int(x/self.h)
+        indXp1 = indXm1 + 2
+        indYm1 = int(y/self.h)
+        indYp1 = indYm1 + 2
+        xVals = [self.xij[indXm1, 0], self.xij[indXm1 + 1, 0]]
+        yVals = [self.yij[0, indYm1], self.xij[0, indYm1 + 1]]
+        lx = Lagrangebasis(xVals, x=x)
+        ly = Lagrangebasis(yVals, x=y)
         f = Lagrangefunction2D(self.U[indXm1:indXp1, indYm1:indYp1], lx, ly)
         f.subs({x: xVal, y: yVal})
         #raise NotImplementedError
