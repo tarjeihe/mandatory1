@@ -100,11 +100,16 @@ class Wave2D:
         self.create_mesh(N)
         self.cfl = cfl
         self.c = c
+        print(self.dt)
         self.initialize(N, mx, my)
         self.Unp1, self.Un, self.Unm1 = np.zeros((3, N+1, N+1))
         self.Unm1[:] = self.u
         D = self.D2(N)/(self.h*self.h)
         self.Un[:] = self.Unm1[:] + 0.5*(c*self.dt)**2*(D @ self.Unm1 + self.Unm1 @ D.T)
+        self.Un[0] = 0
+        self.Un[-1] = 0
+        self.Un[:, -1] = 0
+        self.Un[:, 0] = 0
         time = self.dt
         plotdata = {0: self.Unm1.copy()}
         errordata = []
@@ -161,34 +166,7 @@ class Wave2D:
 
 class Wave2D_Neumann(Wave2D):
 
-    def create_mesh(self, N, sparse=False):
-        """Create 2D mesh and store in self.xij and self.yij"""
-        self.xij, self.yij = np.meshgrid(np.linspace(0, 1.0, N + 1), np.linspace(0, 1.0, N + 1), indexing='ij')
-        self.N = N
-        self.h = 1.0/self.N
-        #raise NotImplementedError
 
-    def initialize(self, N, mx, my):
-        r"""Initialize the solution at $U^{n}$ and $U^{n-1}$
-    
-        Parameters
-        ----------
-        N : int
-            The number of uniform intervals in each direction
-        mx, my : int
-            Parameters for the standing wave
-        """
-        self.mx = mx
-        self.my = my
-        self.u = sp.lambdify((x, y, t), self.ue(mx, my))(self.xij, self.yij, 0)
-        #raise NotImplementedError
-
-    @property
-    def w(self):
-        """Return the dispersion coefficient"""
-        return np.pi*np.sqrt(self.mx**2 + self.my**2)
-        #raise NotImplementedError
-    
     def D2(self, N):
         D = sparse.diags([1, -2, 1], [-1, 0, 1], (N + 1, N + 1), 'lil')
         D[0, :2] = -2, 2
@@ -312,6 +290,7 @@ class Wave2D_Neumann(Wave2D):
 def test_convergence_wave2d():
     sol = Wave2D()
     r, E, h = sol.convergence_rates(mx=2, my=3)
+    print(E)
     assert abs(r[-1]-2) < 1e-2
 
 def test_convergence_wave2d_neumann():
@@ -321,9 +300,8 @@ def test_convergence_wave2d_neumann():
 
 def test_exact_wave2d():
     sol = Wave2D()
-    r, E, h = sol.convergence_rates(m=6, cfl=1/np.sqrt(2), mx=2, my=2)
-    print(abs(E[-1]))
-    assert True
+    r, E, h = sol.convergence_rates(m=4, cfl=1/np.sqrt(2), mx=2, my=2)
+    assert abs(E[-1]) < 1e-12
     #raise NotImplementedError
 
 if __name__ == '__main__':
