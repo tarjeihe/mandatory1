@@ -174,9 +174,9 @@ class Poisson2D:
         The value of u(x, y)
 
         """
-        indXm1 = int(x/self.h)
+        indXm1 = int(xVal/self.h)
         indXp1 = indXm1 + 2
-        indYm1 = int(y/self.h)
+        indYm1 = int(yVal/self.h)
         indYp1 = indYm1 + 2
         xVals = [self.xij[indXm1, 0], self.xij[indXm1 + 1, 0]]
         yVals = [self.yij[0, indYm1], self.xij[0, indYm1 + 1]]
