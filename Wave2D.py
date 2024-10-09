@@ -3,6 +3,7 @@ import sympy as sp
 import scipy.sparse as sparse
 import matplotlib.pyplot as plt
 from matplotlib import cm
+import matplotlib.animation as animation
 
 x, y, t = sp.symbols('x,y,t')
 
@@ -238,7 +239,7 @@ class Wave2D_Neumann(Wave2D):
         errordata = []
         if store_data == 1:
             plotdata[1] = self.Un.copy()
-            errordata[1] = self.l2_error(self.Un, time)
+            errordata.append(self.l2_error(self.Un, time))
         for n in range(1, Nt):
             time += self.dt
             self.Unp1[:] = 2*self.Un - self.Unm1 + (c*self.dt)**2*(D @ self.Un + self.Un @ D.T)
@@ -286,6 +287,20 @@ class Wave2D_Neumann(Wave2D):
             Nt *= 2
         r = [np.log(E[i-1]/E[i])/np.log(h[i-1]/h[i]) for i in range(1, m+1, 1)]
         return r, np.array(E), np.array(h)
+    
+    def makeAni(self, N, Nt=10, mx=2, my=2):
+        data = self(N, Nt, mx=mx, my=my, store_data=1)
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+        frames = []
+        for n, val in data.items():
+            frame = ax.plot_wireframe(self.xij, self.yij, val, rstride=2, cstride=2);
+            #frame = ax.plot_surface(xij, yij, val, vmin=-0.5*data[0].max(),
+            #                        vmax=data[0].max(), cmap=cm.coolwarm,
+            #                        linewidth=0, antialiased=False)
+            frames.append([frame])
+
+        ani = animation.ArtistAnimation(fig, frames, interval=400, blit=True, repeat_delay=1000)
+        ani.save('wavemovie2dunstable.apng', writer='pillow', fps=5)
 
 def test_convergence_wave2d():
     sol = Wave2D()
@@ -304,8 +319,12 @@ def test_exact_wave2d():
     assert abs(E[-1]) < 1e-12
     #raise NotImplementedError
 
+def makeAnimation():
+    sol = Wave2D_Neumann()
+    sol.makeAni(16, 10)
+
 if __name__ == '__main__':
     #test_convergence_wave2d()
     #test_convergence_wave2d_neumann()
-    test_exact_wave2d()
-    #test_interpolation()
+    #test_exact_wave2d()
+    makeAnimation()
