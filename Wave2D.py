@@ -320,7 +320,9 @@ def test_convergence_wave2d_neumann():
     assert abs(r[-1]-2) < 0.05
 
 def test_exact_wave2d():
-    
+    sol = Wave2D()
+    r, E, h = solN.convergence_rates(cfl=1/np.sqrt(2), mx=2, my=2)
+    assert abs(E[-1] < 1e-12)
     #raise NotImplementedError
 
 if __name__ == '__main__':
