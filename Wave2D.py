@@ -326,6 +326,7 @@ def test_exact_wave2d():
     #raise NotImplementedError
 
 if __name__ == '__main__':
-    test_convergence_wave2d()
-    test_convergence_wave2d_neumann()
+    #test_convergence_wave2d()
+    #test_convergence_wave2d_neumann()
+    test_exact_wave2d()
     #test_interpolation()
